@@ -134,7 +134,7 @@ export const getOrderById = catchAsync(async (req: Request, res: Response, next:
     const { id } = req.params;
 
     const order = await prisma.order.findUnique({
-      where: { id },
+      where: { id: id as string },
       include: {
         items: { include: { product: true, design: true } },
         vendor: { include: { user: { select: { name: true, phone: true } } } },
@@ -168,9 +168,9 @@ export const updateOrderStatus = catchAsync(async (req: Request, res: Response, 
     }
 
     const order = await prisma.order.update({
-      where: { id },
+      where: { id: id as string },
       data: {
-        status,
+        status: status as any,
         ...(trackingNumber && { trackingNumber }),
       },
       include: {

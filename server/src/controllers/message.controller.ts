@@ -1,14 +1,14 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import prisma from '../config/database';
+import { catchAsync } from '../utils/catchAsync';
 
-export const getMessages = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getMessages = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user?.id;
     const { orderId } = req.params;
 
     // Verify access
     const order = await prisma.order.findUnique({
-      where: { id: orderId },
+      where: { id: orderId as string },
       include: { vendor: true },
     });
 
@@ -25,21 +25,16 @@ export const getMessages = async (req: Request, res: Response): Promise<void> =>
     }
 
     const messages = await prisma.message.findMany({
-      where: { orderId },
+      where: { orderId: orderId as string },
       orderBy: { createdAt: 'asc' },
       include: { sender: { select: { id: true, name: true, role: true, avatar: true } } },
     });
 
     res.status(200).json({ messages });
-  } catch (error) {
-    console.error('Get messages error:', error);
-    res.status(500).json({ error: 'Failed to get messages' });
-  }
-};
+});
 
 // Get conversations (orders with chat) for current user
-export const getConversations = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getConversations = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user?.id;
     const userRole = req.user?.role;
 
@@ -50,10 +45,10 @@ export const getConversations = async (req: Request, res: Response): Promise<voi
 
     let where: any = {};
     if (userRole === 'VENDOR') {
-      const vendor = await prisma.vendor.findUnique({ where: { userId } });
+      const vendor = await prisma.vendor.findUnique({ where: { userId: userId as string } });
       if (vendor) where = { vendorId: vendor.id };
     } else {
-      where = { userId };
+      where = { userId: userId as string };
     }
 
     const orders = await prisma.order.findMany({
@@ -72,7 +67,7 @@ export const getConversations = async (req: Request, res: Response): Promise<voi
         },
         _count: {
           select: {
-            messages: { where: { senderId: { not: userId }, isRead: false } },
+            messages: { where: { senderId: { not: userId as string }, isRead: false } },
           },
         },
       },
@@ -88,8 +83,4 @@ export const getConversations = async (req: Request, res: Response): Promise<voi
     }));
 
     res.status(200).json({ conversations });
-  } catch (error) {
-    console.error('Get conversations error:', error);
-    res.status(500).json({ error: 'Failed to get conversations' });
-  }
-};
+});

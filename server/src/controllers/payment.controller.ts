@@ -113,7 +113,7 @@ export const getPaymentStatus = catchAsync(async (req: Request, res: Response, n
     const { orderId } = req.params;
 
     const payment = await prisma.payment.findUnique({
-      where: { orderId },
+      where: { orderId: orderId as string },
     });
 
     if (!payment) {

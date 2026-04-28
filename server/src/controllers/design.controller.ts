@@ -36,7 +36,7 @@ export const getDesignById = catchAsync(async (req: Request, res: Response, next
   const { id } = req.params;
 
   const design = await prisma.design.findFirst({
-    where: { id, userId },
+    where: { id: id as string, userId: userId as string },
   });
 
   if (!design) {
@@ -52,14 +52,14 @@ export const updateDesign = catchAsync(async (req: Request, res: Response, next:
   const { id } = req.params;
   const { name, canvasData, previewUrl } = req.body;
 
-  const existing = await prisma.design.findFirst({ where: { id, userId } });
+  const existing = await prisma.design.findFirst({ where: { id: id as string, userId: userId as string } });
   if (!existing) {
     res.status(404).json({ error: 'Design not found' });
     return;
   }
 
   const design = await prisma.design.update({
-    where: { id },
+    where: { id: id as string },
     data: { name, canvasData, previewUrl },
   });
 
@@ -70,12 +70,12 @@ export const deleteDesign = catchAsync(async (req: Request, res: Response, next:
   const userId = req.user?.id;
   const { id } = req.params;
 
-  const existing = await prisma.design.findFirst({ where: { id, userId } });
+  const existing = await prisma.design.findFirst({ where: { id: id as string, userId: userId as string } });
   if (!existing) {
     res.status(404).json({ error: 'Design not found' });
     return;
   }
 
-  await prisma.design.delete({ where: { id } });
+  await prisma.design.delete({ where: { id: id as string } });
   res.status(200).json({ message: 'Design deleted' });
 });
