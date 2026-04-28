@@ -110,10 +110,10 @@ export const confirmPayment = catchAsync(async (req: Request, res: Response, nex
 
 // Get payment status
 export const getPaymentStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const { orderId } = req.params;
+    const orderId = String(req.params.orderId);
 
     const payment = await prisma.payment.findUnique({
-      where: { orderId: orderId as string },
+      where: { orderId: orderId },
     });
 
     if (!payment) {

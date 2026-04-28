@@ -23,9 +23,9 @@ export const getVendors = catchAsync(async (req: Request, res: Response, next: N
 });
 
 export const getVendorById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const { id } = req.params;
+  const vId = String(req.params.id);
   const vendor = await prisma.vendor.findUnique({
-    where: { id: id as string },
+    where: { id: vId },
     include: {
       user: { select: { name: true, avatar: true, phone: true } },
       reviews: {

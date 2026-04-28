@@ -51,10 +51,10 @@ export const createReview = catchAsync(async (req: Request, res: Response, next:
 });
 
 export const getVendorReviews = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const { vendorId } = req.params;
+    const vId = String(req.params.vendorId);
 
     const reviews = await prisma.review.findMany({
-      where: { vendorId: vendorId as string },
+      where: { vendorId: vId },
       orderBy: { createdAt: 'desc' },
       include: { user: { select: { name: true, avatar: true } } },
     });

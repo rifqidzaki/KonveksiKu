@@ -15,8 +15,8 @@ export const getProducts = catchAsync(async (req: Request, res: Response, next: 
 });
 
 export const getProductById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
-    const product = await prisma.product.findUnique({ where: { id: id as string } });
+    const productId = String(req.params.id);
+    const product = await prisma.product.findUnique({ where: { id: productId } });
 
     if (!product) {
       res.status(404).json({ error: 'Product not found' });

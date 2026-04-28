@@ -3,12 +3,12 @@ import prisma from '../config/database';
 import { catchAsync } from '../utils/catchAsync';
 
 export const getMessages = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user?.id;
-    const { orderId } = req.params;
+    const ownerId = String(req.user?.id);
+    const orderId = String(req.params.orderId);
 
     // Verify access
     const order = await prisma.order.findUnique({
-      where: { id: orderId as string },
+      where: { id: orderId },
       include: { vendor: true },
     });
 
@@ -17,15 +17,15 @@ export const getMessages = catchAsync(async (req: Request, res: Response, next: 
       return;
     }
 
-    const isOwner = order.userId === userId;
-    const isVendor = order.vendor.userId === userId;
+    const isOwner = order.userId === ownerId;
+    const isVendor = order.vendor.userId === ownerId;
     if (!isOwner && !isVendor) {
       res.status(403).json({ error: 'Access denied' });
       return;
     }
 
     const messages = await prisma.message.findMany({
-      where: { orderId: orderId as string },
+      where: { orderId: orderId },
       orderBy: { createdAt: 'asc' },
       include: { sender: { select: { id: true, name: true, role: true, avatar: true } } },
     });
@@ -35,20 +35,20 @@ export const getMessages = catchAsync(async (req: Request, res: Response, next: 
 
 // Get conversations (orders with chat) for current user
 export const getConversations = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
+    const userId = String(req.user?.id);
+    const userRole = String(req.user?.role);
 
-    if (!userId) {
+    if (!userId || userId === 'undefined') {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
     let where: any = {};
     if (userRole === 'VENDOR') {
-      const vendor = await prisma.vendor.findUnique({ where: { userId: userId as string } });
+      const vendor = await prisma.vendor.findUnique({ where: { userId: userId } });
       if (vendor) where = { vendorId: vendor.id };
     } else {
-      where = { userId: userId as string };
+      where = { userId: userId };
     }
 
     const orders = await prisma.order.findMany({
@@ -67,7 +67,7 @@ export const getConversations = catchAsync(async (req: Request, res: Response, n
         },
         _count: {
           select: {
-            messages: { where: { senderId: { not: userId as string }, isRead: false } },
+            messages: { where: { senderId: { not: userId }, isRead: false } },
           },
         },
       },
