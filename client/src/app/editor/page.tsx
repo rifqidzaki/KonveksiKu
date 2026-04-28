@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 import api from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
 import {
@@ -258,10 +259,11 @@ export default function EditorPage() {
       });
 
       setSaved(true);
+      toast.success("Desain berhasil disimpan!");
       setTimeout(() => setSaved(false), 3000);
     } catch (err: any) {
       const msg = err.response?.data?.error || "Gagal menyimpan desain";
-      setSaveError(msg);
+      toast.error(msg);
       // If unauthorized, redirect to login
       if (err.response?.status === 401) {
         router.push("/login");

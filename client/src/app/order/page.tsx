@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "react-hot-toast";
 import { useAuthStore } from "@/stores/authStore";
 import api from "@/lib/api";
 import {
@@ -136,7 +137,7 @@ function OrderPageContent() {
       // Redirect to payment page with the new order
       router.push(`/payment?order=${res.data.order.id}`);
     } catch (err: any) {
-      alert(err.response?.data?.error || "Gagal membuat pesanan");
+      toast.error(err.response?.data?.error || "Gagal membuat pesanan");
     } finally {
       setSubmitting(false);
     }

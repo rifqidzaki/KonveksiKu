@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import prisma from '../config/database';
+import { catchAsync } from '../utils/catchAsync';
 
-export const getProducts = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getProducts = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { category } = req.query;
     const where = category ? { category: category as string } : {};
 
@@ -12,14 +12,9 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
     });
 
     res.status(200).json({ products });
-  } catch (error) {
-    console.error('Get products error:', error);
-    res.status(500).json({ error: 'Failed to get products' });
-  }
-};
+});
 
-export const getProductById = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getProductById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const product = await prisma.product.findUnique({ where: { id } });
 
@@ -29,8 +24,4 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
     }
 
     res.status(200).json({ product });
-  } catch (error) {
-    console.error('Get product error:', error);
-    res.status(500).json({ error: 'Failed to get product' });
-  }
-};
+});

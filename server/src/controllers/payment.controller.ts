@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import prisma from '../config/database';
+import { catchAsync } from '../utils/catchAsync';
 
 // Create payment (simulated Midtrans Snap token generation)
-export const createPayment = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const createPayment = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user?.id;
     const { orderId } = req.body;
 
@@ -60,15 +60,10 @@ export const createPayment = async (req: Request, res: Response): Promise<void> 
       snapToken,
       // In production: redirectUrl for Midtrans
     });
-  } catch (error) {
-    console.error('Create payment error:', error);
-    res.status(500).json({ error: 'Failed to create payment' });
-  }
-};
+});
 
 // Simulate payment confirmation (in production, this is a Midtrans webhook)
-export const confirmPayment = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const confirmPayment = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { paymentId, paymentMethod } = req.body;
 
     if (!paymentId) {
@@ -111,15 +106,10 @@ export const confirmPayment = async (req: Request, res: Response): Promise<void>
       message: 'Payment confirmed',
       payment: updatedPayment,
     });
-  } catch (error) {
-    console.error('Confirm payment error:', error);
-    res.status(500).json({ error: 'Failed to confirm payment' });
-  }
-};
+});
 
 // Get payment status
-export const getPaymentStatus = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getPaymentStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { orderId } = req.params;
 
     const payment = await prisma.payment.findUnique({
@@ -132,8 +122,4 @@ export const getPaymentStatus = async (req: Request, res: Response): Promise<voi
     }
 
     res.status(200).json({ payment });
-  } catch (error) {
-    console.error('Get payment status error:', error);
-    res.status(500).json({ error: 'Failed to get payment status' });
-  }
-};
+});

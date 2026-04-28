@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 import { useAuthStore } from "@/stores/authStore";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 
@@ -20,6 +21,7 @@ export default function LoginPage() {
       // Check role from localStorage (set by login)
       const userData = localStorage.getItem("user");
       const role = userData ? JSON.parse(userData).role : "USER";
+      toast.success(`Selamat datang kembali, ${JSON.parse(userData).name}!`);
       router.push(role === "VENDOR" ? "/vendor" : "/dashboard");
     } catch {
       // error is handled by store

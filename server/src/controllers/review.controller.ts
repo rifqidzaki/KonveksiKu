@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import prisma from '../config/database';
+import { catchAsync } from '../utils/catchAsync';
 
-export const createReview = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const createReview = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user?.id;
     if (!userId) { res.status(401).json({ error: 'Unauthorized' }); return; }
 
@@ -48,14 +48,9 @@ export const createReview = async (req: Request, res: Response): Promise<void> =
     });
 
     res.status(201).json({ message: 'Review submitted', review });
-  } catch (error) {
-    console.error('Create review error:', error);
-    res.status(500).json({ error: 'Failed to create review' });
-  }
-};
+});
 
-export const getVendorReviews = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getVendorReviews = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { vendorId } = req.params;
 
     const reviews = await prisma.review.findMany({
@@ -65,8 +60,4 @@ export const getVendorReviews = async (req: Request, res: Response): Promise<voi
     });
 
     res.status(200).json({ reviews });
-  } catch (error) {
-    console.error('Get reviews error:', error);
-    res.status(500).json({ error: 'Failed to get reviews' });
-  }
-};
+});

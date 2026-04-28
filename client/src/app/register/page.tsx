@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 import { useAuthStore } from "@/stores/authStore";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
 
@@ -32,6 +33,7 @@ export default function RegisterPage() {
 
     try {
       await register(name, email, password, role);
+      toast.success("Registrasi berhasil! Selamat datang di KonveksiKu.");
       router.push(role === "VENDOR" ? "/vendor" : "/dashboard");
     } catch {
       // error handled by store

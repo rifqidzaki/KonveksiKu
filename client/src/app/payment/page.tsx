@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "react-hot-toast";
 import api from "@/lib/api";
 import {
   ArrowLeft, CreditCard, CheckCircle, Clock, Building2,
@@ -86,8 +87,9 @@ function PaymentPageContent() {
       });
 
       setPaymentSuccess(true);
+      toast.success("Pembayaran berhasil dikonfirmasi");
     } catch (err: any) {
-      alert(err.response?.data?.error || "Pembayaran gagal");
+      toast.error(err.response?.data?.error || "Pembayaran gagal");
     } finally {
       setProcessing(false);
     }

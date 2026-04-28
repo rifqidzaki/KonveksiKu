@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 import { useAuthStore } from "@/stores/authStore";
 import api from "@/lib/api";
 import {
@@ -84,9 +85,10 @@ export default function VendorDashboardPage() {
   const updateStatus = async (orderId: string, newStatus: string) => {
     try {
       await api.patch(`/api/orders/${orderId}/status`, { status: newStatus });
+      toast.success("Status pesanan diperbarui");
       fetchOrders(); // Refresh
     } catch (err: any) {
-      alert(err.response?.data?.error || "Gagal update status");
+      toast.error(err.response?.data?.error || "Gagal update status");
     }
   };
 
