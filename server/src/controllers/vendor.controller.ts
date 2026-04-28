@@ -3,19 +3,10 @@ import prisma from '../config/database';
 import { catchAsync } from '../utils/catchAsync';
 
 export const getVendors = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const { location, specialization, sort } = req.query;
-
-  const where: any = { isVerified: true };
-  if (location) where.location = { contains: location as string, mode: 'insensitive' };
-  if (specialization) where.specialization = { has: specialization as string };
-
-  const orderBy: any = sort === 'rating' ? { rating: 'desc' } : { createdAt: 'desc' };
-
   const vendors = await prisma.vendor.findMany({
-    where,
-    orderBy,
     include: {
       user: { select: { name: true, avatar: true } },
+      _count: { select: { reviews: true } },
     },
   });
 
@@ -23,9 +14,8 @@ export const getVendors = catchAsync(async (req: Request, res: Response, next: N
 });
 
 export const getVendorById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const vId = String(req.params.id);
   const vendor = await prisma.vendor.findUnique({
-    where: { id: vId },
+    where: { id: req.params.id as any },
     include: {
       user: { select: { name: true, avatar: true, phone: true } },
       reviews: {

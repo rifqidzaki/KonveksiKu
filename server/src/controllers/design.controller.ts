@@ -32,11 +32,8 @@ export const getDesigns = catchAsync(async (req: Request, res: Response, next: N
 });
 
 export const getDesignById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const designId = String(req.params.id);
-  const ownerId = String(req.user?.id);
-
   const design = await prisma.design.findFirst({
-    where: { id: designId, userId: ownerId },
+    where: { id: req.params.id as any, userId: req.user?.id as any },
   });
 
   if (!design) {
@@ -48,18 +45,19 @@ export const getDesignById = catchAsync(async (req: Request, res: Response, next
 });
 
 export const updateDesign = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const designId = String(req.params.id);
-  const ownerId = String(req.user?.id);
   const { name, canvasData, previewUrl } = req.body;
 
-  const existing = await prisma.design.findFirst({ where: { id: designId, userId: ownerId } });
+  const existing = await prisma.design.findFirst({ 
+    where: { id: req.params.id as any, userId: req.user?.id as any } 
+  });
+  
   if (!existing) {
     res.status(404).json({ error: 'Design not found' });
     return;
   }
 
   const design = await prisma.design.update({
-    where: { id: designId },
+    where: { id: req.params.id as any },
     data: { name, canvasData, previewUrl },
   });
 
@@ -67,15 +65,15 @@ export const updateDesign = catchAsync(async (req: Request, res: Response, next:
 });
 
 export const deleteDesign = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const designId = String(req.params.id);
-  const ownerId = String(req.user?.id);
-
-  const existing = await prisma.design.findFirst({ where: { id: designId, userId: ownerId } });
+  const existing = await prisma.design.findFirst({ 
+    where: { id: req.params.id as any, userId: req.user?.id as any } 
+  });
+  
   if (!existing) {
     res.status(404).json({ error: 'Design not found' });
     return;
   }
 
-  await prisma.design.delete({ where: { id: designId } });
+  await prisma.design.delete({ where: { id: req.params.id as any } });
   res.status(200).json({ message: 'Design deleted' });
 });
