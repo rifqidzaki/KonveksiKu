@@ -20,9 +20,11 @@ export default function LoginPage() {
       await login(email, password);
       // Check role from localStorage (set by login)
       const userData = localStorage.getItem("user");
-      const role = userData ? JSON.parse(userData).role : "USER";
-      toast.success(`Selamat datang kembali, ${JSON.parse(userData).name}!`);
-      router.push(role === "VENDOR" ? "/vendor" : "/dashboard");
+      if (userData) {
+        const user = JSON.parse(userData);
+        toast.success(`Selamat datang kembali, ${user.name}!`);
+        router.push(user.role === "VENDOR" ? "/vendor" : "/dashboard");
+      }
     } catch {
       // error is handled by store
     }
